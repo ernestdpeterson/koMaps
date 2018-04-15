@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+    <link rel="stylesheet" href="ko.css">
+    <title>KO</title>
+</head>
+<body>
+
+<!-- modal for the instructions button in the list -->
+<section id="modalinstructions" class="modal">
+    <section class="modal-content">
+        <section class="modal-header">
+            <span id="closeinstructions" class="close" onclick=modalClose(this.id)>x</span>
+            <h2>Instructions</h2>
+        </section>
+        <section class = "modal-body">
+            <p>Click on the Name of the item you are interested in to see Google reviews of that place.</p>
+        </section>
+    </section>
+</section>
+
+<!-- modals -->
+<div data-bind="foreach: modalArray">
+    <section data-bind="attr: {id: 'modal'+modalName}" class = "modal">
+        <section class = "modal-content">
+            <section class = "modal-header">
+                <span data-bind="attr: {id: 'close'+modalName}" class = "close" onclick=modalClose(this.id)>x</span>
+                <h2>Reviews From Google Reviews</h2>
+            </section>
+            <section class = "modal-body">
+                <p data-bind="html: modalInfo"></p>
+            </section>
+        </section>
+    </section>
+</div>
+
+<section id="searchContainer">
+    <form data-bind="submit: changePlace()">
+        <p>To search for points of interest in a new location:</p>
+        <input data-bind="value: inputPlace" id="searchInput" type="text" placeholder="Enter a location for search">
+        <button type="submit">Submit</button>
+    </form>
+</section>
+
+<aside id="roto" class="buttonBox">
+    <button class="refineSelector"><b>Refine the list to show:</b>
+        <select data-bind="options: optionValues, optionsText: 'seeit', optionsValue: 'thisVal', selectedOptions: addMarkerType, click: someHelp()"></select>
+    </button>
+
+    <ol id="theList" class="content" data-bind="foreach: items ">
+
+        <li data-bind="attr: {id: 'top'+tagId}, if: $root.addMarkerType() == 'all' || $root.addMarkerType() == placeType">
+
+            <button class="listItem" data-bind="text: placeId, attr: {id: tagId}, value: placeType, click: $parent.clickVal()" onclick="modalFunc(this.id)"></button>
+
+        </li>
+
+    </ol>
+
+</aside>
+
+<main id="map"></main>
+
+<script src="ko.js"></script>
+<script async defer onerror="alert('There was an error loading this page.')" src='https://maps.googleapis.com/maps/api/js?key=AIzaSyDyLw3cQPBIXwwExxqVNBsc9D-4KeVPp8g&callback=initMap&libraries=places'></script>
+
+</body>
+</html>
