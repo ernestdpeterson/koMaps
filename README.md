@@ -1,1 +1,1 @@
-# koMaps
+# Google Maps api mashup using Knockoutjs
