@@ -1,7 +1,7 @@
 {
-  "name": "maps",
+  "name": "googlemaps",
   "version": "1.0.0",
-  "description": "Google maps apis with Knockoutjs control",
+  "description": "Google Maps API With KnockouJS MVVM",
   "main": "gulpfile.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,6 +10,13 @@
     "type": "git",
     "url": "git+https://github.com/ernestdpeterson/koMaps.git"
   },
+  "keywords": [
+    "Google",
+    "Maps",
+    "API",
+    "KnockouJS",
+    "Javascript"
+  ],
   "author": "Ernest D. Peterson",
   "license": "ISC",
   "bugs": {
@@ -17,13 +24,9 @@
   },
   "homepage": "https://github.com/ernestdpeterson/koMaps#readme",
   "devDependencies": {
-    "browser-sync": "^2.24.4",
+    "browser-sync": "^2.24.7",
     "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^5.0.0",
-    "gulp-jshint": "^2.1.0",
-    "gulp-uglify": "^3.0.0",
-    "gulp-util": "^3.0.8",
-    "jshint": "^2.9.5",
-    "jshint-stylish": "^2.2.1"
+    "gulp-autoprefixer": "^6.0.0",
+    "gulp-uglify": "^3.0.1"
   }
 }

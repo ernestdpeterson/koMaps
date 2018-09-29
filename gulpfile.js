@@ -20,13 +20,6 @@
 // [22:35:42] CLI version 1.4.0 (at time of writing)
 // [22:35:42] Local version 4.0.0-alpha.2
 
-// npm install --save-dev gulp
-// npm install --save-dev gulp-util
-// npm install - -save-dev jshint gulp-jshint jshint-stylish gulp-uglify 
-// npm install -g browser-sync
-// To use sync: navigate to project base dir and: 
-// browser-sync start --server --files "*.html, css/*.css"
-
 // npm init
 var gulp = require('gulp');
 // npm install gulp-sass
@@ -45,13 +38,11 @@ var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 
 gulp.task('default', function(done) {
-    gulp.watch('sass/**/*.scss', gulp.series('styling'));
-    gulp.watch('js/**/*.js', gulp.series('lint'));
-    gulp.watch('js/**/*.js', gulp.series('scripts'));
-    gulp.watch('./index.html', gulp.series('copy-html'));
-    gulp.watch(['itsDone/index.html', 'itsDone/js/main.js', 'itsDone/css/style.css']).on('change', browserSync.reload);
+    gulp.watch('sass/**/*.scss', ['styling']);
+    gulp.watch('js/**/*.js', ['lint', 'scripts']);
+    gulp.watch(['index.html', './js/*.js', './css/*.css']).on('change', browserSync.reload);
     browserSync.init({
-        server: 'itsDone'
+        server: './'
     });
     done();
 });
@@ -69,7 +60,7 @@ gulp.task('styling', function(done) {
         .pipe(autoprefixer({
             browsers: ['last 2 versions']
         }))
-        .pipe(gulp.dest('itsDone/css'));
+        .pipe(gulp.dest('./css'));
     done();
 });
 
@@ -88,26 +79,26 @@ gulp.task('lint', function() {
 
 gulp.task('copy-html', function(done) {
     gulp.src('./index.html')
-        .pipe((gulp.dest('itsDone')));
+        .pipe((gulp.dest('distribution')));
     done();
 });
 
 gulp.task('copy-images', function(done) {
     gulp.src('img/*')
-        .pipe((gulp.dest('itsDone/img')));
+        .pipe((gulp.dest('distribution/img')));
     done();
 });
 
 gulp.task('scripts', function(done) {
     gulp.src('js/**/*.js')
         .pipe(concat('main.js'))
-        .pipe(gulp.dest('itsDone/js'));
+        .pipe(gulp.dest('distribution/js'));
     done();
 });
 
-gulp.task('imDone', function(done) {
+gulp.task('Done', function(done) {
     gulp.src('./index.html')
-        .pipe((gulp.dest('itsDone')));
+        .pipe((gulp.dest('distribution')));
     gulp.src('sass/**/*.scss')
         .pipe(sass({
             outputStyle: 'compressed'
@@ -115,13 +106,13 @@ gulp.task('imDone', function(done) {
         .pipe(autoprefixer({
             browsers: ['last 2 versions']
         }))
-        .pipe(gulp.dest('itsDone/css'));
+        .pipe(gulp.dest('distribution/css'));
     gulp.src('js/**/*.js')
         .pipe(concat('main.js'))
         .pipe(uglify())
-        .pipe(gulp.dest('itsDone/js'));
-    gulp.src('img/*')
-        .pipe((gulp.dest('itsDone/img')));
+        .pipe(gulp.dest('distribution/js'));
+    gulp.src('img/**/*')
+        .pipe((gulp.dest('distribution/img')));
     
     done();
 });
