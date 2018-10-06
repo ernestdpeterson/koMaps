@@ -69,6 +69,77 @@ function initMap() {
         return markerImage;
     }
 
+    function populateInfoWindow(marker, infowindow) {
+
+        // Check to make sure the infowindow is not already opened on this marker.
+        if (infowindow.marker != marker) {
+          // Clear the infowindow content to give the streetview time to load.
+          infowindow.setContent('');
+          infowindow.marker = marker;
+          // Make sure the marker property is cleared if the infowindow is closed.
+          infowindow.addListener('closeclick', function() {
+            infowindow.marker = null;
+            marker.setAnimation(null);
+          });
+          var streetViewService = new google.maps.StreetViewService();
+          var radius = 50;
+          // In case the status is OK, which means the pano was found, compute the position of the streetview image, then calculate the heading, then get a panorama from that and set the options
+          function getStreetView(data, status) {
+
+            if (status == google.maps.StreetViewStatus.OK) {
+                var nearStreetViewLocation = data.location.latLng;
+                var heading = google.maps.geometry.spherical.computeHeading(
+                nearStreetViewLocation, marker.position);
+                var markerLat = marker.position.lat();
+                var markerLng = marker.position.lng();
+                var mapQuestURL = "http://www.mapquestapi.com/geocoding/v1/reverse?key=eYCUpFNieaLmErWTstVqZMrZcCemCh0x&location=" + 
+                    markerLat + "," + markerLng +
+                    "&ourFormat=json&includeRoadMetadata=true&includeNearestIntersection=true";
+
+                $.ajax({
+                    url: mapQuestURL,
+                    type: 'GET'
+                }).done(
+                    function(stuff) {
+                    var streetAddress = stuff.results[0].locations[0].street;
+                    var cityAddress = stuff.results[0].locations[0].adminArea5;
+                    var stateAddress = stuff.results[0].locations[0].adminArea3;
+                    var postalAddress = stuff.results[0].locations[0].postalCode;
+                    var address = streetAddress + ", " + cityAddress + ", " + stateAddress + ", " + postalAddress;
+
+                    infowindow.setContent('<div>' + marker.title + '</div><br><div id="pano"></div>' + 
+                    '<div>From: <a href="https://developer.mapquest.com/">MapQuest</a>: ' + address + '</div>' + 
+                    '<img srcset="https://www.mapquestapi.com/staticmap/v5/map?key=eYCUpFNieaLmErWTstVqZMrZcCemCh0x&center='+markerLat+','+markerLng+'&zoom=18&type=hyb&size=300,300" alt="Satalite view from MapQuest failed.">'
+                        );
+
+                    var panoramaOptions = {
+                      position: nearStreetViewLocation,
+                      pov: {
+                        heading: heading,
+                        pitch: 30
+                      }
+                    };
+                    var panorama = new google.maps.StreetViewPanorama(document.getElementById('pano'), panoramaOptions);
+
+
+                    }
+                ).fail(function(err) {
+                    alert('MapQuest Adress failed ', err);
+                    throw err;
+                });
+            } else {
+              infowindow.setContent('<div>' + marker.title + '</div>' +
+                '<div id="pano"><br><br>No Street View Found</div>');
+            }
+          }
+          // Use streetview service to get the closest streetview image within
+          // 50 meters of the markers position
+          streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+          // Open the infowindow on the correct marker.
+          infowindow.open(map, marker);
+        }
+    }
+
     var SimpleListModel = function(items) {
 
         this.items = ko.observableArray(items);
@@ -143,15 +214,14 @@ function initMap() {
 
         this.markersSearch = ko.computed(
             function() {
-
-            service.nearbySearch({
-              location: startPoint,
-              radius: 500,
-              type: [typeVariable]
-            }, callback); // bottom of the callback
+                service.nearbySearch({
+                  location: startPoint,
+                  radius: 500,
+                  type: [typeVariable]
+            }, callback);
         });
 
-    }
+    } // bottom of the KO model
 
             function callback(results, status) {
 
@@ -238,7 +308,7 @@ function initMap() {
         if (place == "not this one") {
             return;
         }
-
+console.log(place.geometry.location.lat());
         // centers the map on the results cluster
         bounds.extend(place.geometry.location);
         map.fitBounds(bounds);
