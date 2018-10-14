@@ -2,8 +2,6 @@ var map;
 var applyBindingsControl = 0;
 var typeVariable;
 var modalArray = [];
-var koMarkers = [];
-var koArray = [{placeId: "click name to see google reviews", tagId: "instructions", reviews: "Click on the Name of the item you are interested in to see Google reviews of that place.", markerPlace: "not this one", placeType: "none"}];
 
 // BEHAVIOR CONTROL FOR MY MODALS:
 // When the user clicks the button, open the modal
@@ -144,6 +142,10 @@ function initMap() {
 
         this.items = ko.observableArray(items);
 
+        var koMarkers = ko.observableArray();
+
+        var koArray = [{placeId: "click name to see google reviews", tagId: "instructions", reviews: "Click on the Name of the item you are interested in to see Google reviews of that place.", markerPlace: "not this one", placeType: "none"}];
+
         this.addMarkerType = ko.observable('all');
 
         this.optionValues = ko.observable([{seeit: 'All', thisVal: 'all'}, {seeit: 'Store', thisVal: 'store'}, {seeit: 'School', thisVal: 'school'}, {seeit: 'Doctor', thisVal: 'doctor'}, {seeit: 'Hospital', thisVal: 'hospital'}, {seeit: 'Church', thisVal: 'church'}, {seeit: 'Museum', thisVal: 'museum'}, {seeit: 'Restaurant', thisVal: 'restaurant'}]);
@@ -151,7 +153,7 @@ function initMap() {
         this.inputPlace = ko.observableArray("");
 
         this.changePlace = ko.observable(function() {
-            koMarkers.forEach(function(oldMarker) {
+            koMarkers().forEach(function(oldMarker) {
                 oldMarker.setMap(null);
             });
             var newKoArray = [{placeId: "click name to see google reviews", tagId: "instructions", reviews: "Click on the Name of the item you are interested in to see Google reviews of that place.", markerPlace: "not this one", placeType: "none"}];
@@ -193,8 +195,8 @@ function initMap() {
         });
 
         this.makeMarkerType = ko.computed(function() {
-            for (var k = 0; k < koMarkers.length; k++) {
-                koMarkers[k].setMap(map);
+            for (var k = 0; k < koMarkers().length; k++) {
+                koMarkers()[k].setMap(map);
             }
         });
 
@@ -221,119 +223,119 @@ function initMap() {
             }, callback);
         });
 
-    } // bottom of the KO model
+        function callback(results, status) {
 
-            function callback(results, status) {
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
 
-                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                for (var resultsIterator = 0; resultsIterator < results.length; resultsIterator++) {
 
-                    for (var resultsIterator = 0; resultsIterator < results.length; resultsIterator++) {
+                var request = {
+                    placeId: results[resultsIterator].place_id // example:'ChIJddaafks-xIkRPeiYXHAvDi4' // example: ChIJN1t_tDeuEmsRUsoyG83frY4
+                };
 
-                    var request = {
-                        placeId: results[resultsIterator].place_id // example:'ChIJddaafks-xIkRPeiYXHAvDi4' // example: ChIJN1t_tDeuEmsRUsoyG83frY4
-                    };
+                service.getDetails(request, function(rvwsPlace, status) {
 
-                    service.getDetails(request, function(rvwsPlace, status) {
-
-                        console.log('The status of google.maps.places is: ', status);
-                    if (status == google.maps.places.PlacesServiceStatus.OK) {
-                        var rvwsText = [];
-                        if(rvwsPlace.reviews !== undefined) {
-                            for (var s = rvwsPlace.reviews.length - 1; s >= 0; s--) {
-                                    rvwsText.push(String(rvwsPlace.reviews[s].text) + "<br>" + "<br>");
-                                }
-                        } else {
-                            rvwsText.push("No reviews for this location.");
-                        }
-
-                        //sets the location type
-                        var thisTypeVar;
-                        for (var z = rvwsPlace.types.length - 1; z >= 0; z--) {
-                            
-                            if (rvwsPlace.types[z] == "restaurant") {
-                                thisTypeVar = "restaurant";
-                                break;
-                            } else if (rvwsPlace.types[z] == "store") {
-                                thisTypeVar = "store";
-                                break;
-                            } else if (rvwsPlace.types[z] == "school") {
-                                thisTypeVar = "school";
-                                break;
-                            } else if (rvwsPlace.types[z] == "doctor") {
-                                thisTypeVar = "doctor";
-                                break;
-                            } else if (rvwsPlace.types[z] == "hospital") {
-                                thisTypeVar = "hospital";
-                                break;
-                            } else if (rvwsPlace.types[z] == "church") {
-                                thisTypeVar = "church";
-                                break;
-                            } else if (rvwsPlace.types[z] == "museum") {
-                                thisTypeVar = "museum";
-                                break;
-                            } else {
-                                thisTypeVar = "none";
+                    console.log('The status of google.maps.places is: ', status);
+                if (status == google.maps.places.PlacesServiceStatus.OK) {
+                    var rvwsText = [];
+                    if(rvwsPlace.reviews !== undefined) {
+                        for (var s = rvwsPlace.reviews.length - 1; s >= 0; s--) {
+                                rvwsText.push(String(rvwsPlace.reviews[s].text) + "<br>" + "<br>");
                             }
-                        }
-
-                        var idName = String(rvwsPlace.name).replace(/ /g, "_");
-
-                        koArray.push({placeId: rvwsPlace.name,
-                                        tagId: idName,
-                                        markerPlace: rvwsPlace,
-                                        placeType: thisTypeVar
-                                    });
-
-                        //populate the modalArray
-                        modalArray.push({
-                            modalName: idName,
-                            modalInfo: rvwsText
-                        });
-
-                        createMarker(rvwsPlace, thisTypeVar, droppyIcon, defaultIcon);
-
-                        rvwsText = [];
-        
                     } else {
-                        console.log("Details service unavailable at this time. ");
-                    }//bottom of the reviews loop
-                }); //bottom of the getDetails
+                        rvwsText.push("No reviews for this location.");
+                    }
 
-                    }// bottom of the for(results) loop
-                } // bottom of the if(status)
-            }
+                    //sets the location type
+                    var thisTypeVar;
+                    for (var z = rvwsPlace.types.length - 1; z >= 0; z--) {
+                        
+                        if (rvwsPlace.types[z] == "restaurant") {
+                            thisTypeVar = "restaurant";
+                            break;
+                        } else if (rvwsPlace.types[z] == "store") {
+                            thisTypeVar = "store";
+                            break;
+                        } else if (rvwsPlace.types[z] == "school") {
+                            thisTypeVar = "school";
+                            break;
+                        } else if (rvwsPlace.types[z] == "doctor") {
+                            thisTypeVar = "doctor";
+                            break;
+                        } else if (rvwsPlace.types[z] == "hospital") {
+                            thisTypeVar = "hospital";
+                            break;
+                        } else if (rvwsPlace.types[z] == "church") {
+                            thisTypeVar = "church";
+                            break;
+                        } else if (rvwsPlace.types[z] == "museum") {
+                            thisTypeVar = "museum";
+                            break;
+                        } else {
+                            thisTypeVar = "none";
+                        }
+                    }
 
-    function createMarker(place, rvwsMarker, iconAnimation, iconCollor) {
+                    var idName = String(rvwsPlace.name).replace(/ /g, "_");
 
-        if (place == "not this one") {
-            return;
+                    koArray.push({placeId: rvwsPlace.name,
+                                    tagId: idName,
+                                    markerPlace: rvwsPlace,
+                                    placeType: thisTypeVar
+                                });
+
+                    //populate the modalArray
+                    modalArray.push({
+                        modalName: idName,
+                        modalInfo: rvwsText
+                    });
+
+                    createMarker(rvwsPlace, thisTypeVar, droppyIcon, defaultIcon);
+
+                    rvwsText = [];
+    
+                } else {
+                    console.log("Details service unavailable at this time. ");
+                }//bottom of the reviews loop
+            }); //bottom of the getDetails
+
+                }// bottom of the for(results) loop
+            } // bottom of the if(status)
         }
 
-        // centers the map on the results cluster
-        bounds.extend(place.geometry.location);
-        map.fitBounds(bounds);
+        function createMarker(place, rvwsMarker, iconAnimation, iconCollor) {
 
-        var marker = new google.maps.Marker({
-            // map: map,
-            position: place.geometry.location,
-            title: place.name,
-            locationType: rvwsMarker,
-            animation: iconAnimation,
-            icon: iconCollor,
-            id: place.place_id
-        });
-
-        marker.addListener('click', function() {
-            for (var u = koMarkers.length - 1; u >= 0; u--) {
-                koMarkers[u].setAnimation(null);
+            if (place == "not this one") {
+                return;
             }
-            populateInfoWindow(marker, infowindow);
-            marker.setAnimation(bouncyIcon);
-            map.setCenter(marker.getPosition());
-        });
 
-        koMarkers.push(marker);
-    }
+            // centers the map on the results cluster
+            bounds.extend(place.geometry.location);
+            map.fitBounds(bounds);
+
+            var marker = new google.maps.Marker({
+                // map: map,
+                position: place.geometry.location,
+                title: place.name,
+                locationType: rvwsMarker,
+                animation: iconAnimation,
+                icon: iconCollor,
+                id: place.place_id
+            });
+
+            marker.addListener('click', function() {
+                for (var u = koMarkers.length - 1; u >= 0; u--) {
+                    koMarkers[u].setAnimation(null);
+                }
+                populateInfoWindow(marker, infowindow);
+                marker.setAnimation(bouncyIcon);
+                map.setCenter(marker.getPosition());
+            });
+
+            koMarkers.push(marker);
+        }
+
+    } // bottom of the KO model
 
     ko.applyBindings(new SimpleListModel());
 }
