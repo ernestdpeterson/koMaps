@@ -1,7 +1,6 @@
 var map;
 var applyBindingsControl = 0;
 var typeVariable;
-var modalArray = [];
 
 // BEHAVIOR CONTROL FOR MY MODALS:
 // When the user clicks the button, open the modal
@@ -29,7 +28,6 @@ window.onclick = function(event) {
 function initMap() {
     // var startPoint = {lat: 39.8282, lng: -98.5795};
     var startPoint = {lat: 30.433283, lng: -87.240372};
-    var bounds = new google.maps.LatLngBounds();
     var infowindow = new google.maps.InfoWindow();
     var search = document.getElementById('searchContainer');
     var roto = document.getElementById('roto');
@@ -142,7 +140,9 @@ function initMap() {
 
         this.items = ko.observableArray(items);
 
-        var koMarkers = ko.observableArray();
+        var modalArray = [];
+
+        var koMarkers = [];
 
         var koArray = [{placeId: "click name to see google reviews", tagId: "instructions", reviews: "Click on the Name of the item you are interested in to see Google reviews of that place.", markerPlace: "not this one", placeType: "none"}];
 
@@ -153,7 +153,7 @@ function initMap() {
         this.inputPlace = ko.observableArray("");
 
         this.changePlace = ko.observable(function() {
-            koMarkers().forEach(function(oldMarker) {
+            koMarkers.forEach(function(oldMarker) {
                 oldMarker.setMap(null);
             });
             var newKoArray = [{placeId: "click name to see google reviews", tagId: "instructions", reviews: "Click on the Name of the item you are interested in to see Google reviews of that place.", markerPlace: "not this one", placeType: "none"}];
@@ -195,8 +195,8 @@ function initMap() {
         });
 
         this.makeMarkerType = ko.computed(function() {
-            for (var k = 0; k < koMarkers().length; k++) {
-                koMarkers()[k].setMap(map);
+            for (var k = 0; k < koMarkers.length; k++) {
+                koMarkers[k].setMap(map);
             }
         });
 
@@ -310,8 +310,16 @@ function initMap() {
             }
 
             // centers the map on the results cluster
+            var bounds = new google.maps.LatLngBounds();
             bounds.extend(place.geometry.location);
             map.fitBounds(bounds);
+
+            // found this zoom solution @ https://code.i-harness.com/en/q/45040f
+            google.maps.event.addListenerOnce(map, 'bounds_changed', function(event) {
+              if (this.getZoom() > 15) {
+                this.setZoom(15);
+              }
+            });
 
             var marker = new google.maps.Marker({
                 // map: map,
@@ -323,6 +331,8 @@ function initMap() {
                 id: place.place_id
             });
 
+            marker.setMap(map);
+            
             marker.addListener('click', function() {
                 for (var u = koMarkers.length - 1; u >= 0; u--) {
                     koMarkers[u].setAnimation(null);
