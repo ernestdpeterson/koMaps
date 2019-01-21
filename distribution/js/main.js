@@ -1,5 +1,4 @@
 var map;
-var applyBindingsControl = 0;
 var typeVariable;
 
 // BEHAVIOR CONTROL FOR MY MODALS:
