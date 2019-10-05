@@ -31,16 +31,38 @@ var browserSync = require('browser-sync').create();
 // npm install gulp-eslint
 // ./node_modules/.bin/eslint --init
 // add to top of js file: /*eslint-env jquery*/
+// add to package.json: 
+// ,
+//   "browserslist": [
+//     "> 1%",
+//     "ie >= 8",
+//     "edge >= 15",
+//     "ie_mob >= 10",
+//     "ff >= 45",
+//     "chrome >= 45",
+//     "safari >= 7",
+//     "opera >= 23",
+//     "ios >= 7",
+//     "android >= 4",
+//     "bb >= 10"
+//   ]
 var eslint = require('gulp-eslint');
 // npm install gulp-concat
-var concat = require('gulp-concat');
+// var concat = require('gulp-concat');
+// npm install --save-dev gulp-babel @babel/core @babel/preset-env
+var babel = require('gulp-babel');
 // npm install --save-dev gulp-uglify
 var uglify = require('gulp-uglify');
+// npm install --save gulp-uglifycss
+var uglifycss = require('gulp-uglifycss');
+// npm install --save-dev gulp-shell
+// var shell = require('gulp-shell');
+// gulp Start
 
 gulp.task('default', function(done) {
-    gulp.watch('sass/**/*.scss', ['styling']);
-    gulp.watch('js/**/*.js', ['lint', 'scripts']);
-    gulp.watch(['index.html', './js/*.js', './css/*.css']).on('change', browserSync.reload);
+    gulp.watch('sass/**/*.scss', gulp.series('styling'));
+    gulp.watch('js/**/*.js', gulp.series('lint'));
+    gulp.watch(['index.html', 'js/*.js', 'css/main.css']).on('change', browserSync.reload);
     browserSync.init({
         server: './'
     });
@@ -55,12 +77,10 @@ gulp.task('browserSync', function(done) {
 gulp.task('styling', function(done) {
     gulp.src('sass/**/*.scss')
         .pipe(sass({
-            outputStyle: 'compressed'
+            outputStyle: 'compact'
         }).on('error', sass.logError))
-        .pipe(autoprefixer({
-            browsers: ['last 5 versions']
-        }))
-        .pipe(gulp.dest('./css'));
+        .pipe(autoprefixer({}))
+        .pipe(gulp.dest('./css/'));
     done();
 });
 
@@ -77,42 +97,32 @@ gulp.task('lint', function() {
         .pipe(eslint.failOnError());
 });
 
-gulp.task('copy-html', function(done) {
-    gulp.src('./index.html')
-        .pipe((gulp.dest('distribution')));
-    done();
-});
-
-gulp.task('copy-images', function(done) {
-    gulp.src('img/*')
-        .pipe((gulp.dest('distribution/img')));
-    done();
-});
-
-gulp.task('scripts', function(done) {
-    gulp.src('js/**/*.js')
-        .pipe(concat('main.js'))
-        .pipe(gulp.dest('distribution/js'));
-    done();
-});
+// gulp.task('Start', 
+//     shell.task([
+//         'touch index.html', 
+//         'mkdir sass', 
+//         'touch sass/main.scss', 
+//         'mkdir js', 
+//         'touch js/main.js',
+//         'mkdir images'
+//     ])
+// );
 
 gulp.task('Done', function(done) {
-    gulp.src('./index.html')
+    gulp.src('./*.html')
         .pipe((gulp.dest('distribution')));
-    gulp.src('sass/**/*.scss')
-        .pipe(sass({
-            outputStyle: 'compressed'
-        }).on('error', sass.logError))
-        .pipe(autoprefixer({
-            browsers: ['last 2 versions']
+    gulp.src('css/main.css')
+        .pipe(uglifycss({
+            "maxLineLen": 80,
+            "uglyComments": true
         }))
         .pipe(gulp.dest('distribution/css'));
     gulp.src('js/**/*.js')
-        .pipe(concat('main.js'))
+        // compile all es6 to es5 before minifying
+        .pipe(babel({presets: ['@babel/env']}))
         .pipe(uglify())
         .pipe(gulp.dest('distribution/js'));
-    gulp.src('img/**/*')
-        .pipe((gulp.dest('distribution/img')));
-    
+    gulp.src('images/*')
+        .pipe((gulp.dest('distribution/images')));
     done();
 });

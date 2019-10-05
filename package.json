@@ -1,7 +1,7 @@
 {
-  "name": "googlemaps",
+  "name": "komaps",
   "version": "1.0.0",
-  "description": "Google Maps API With KnockouJS MVVM",
+  "description": "### This is version 2.0 so to speak :wink:. The first version was turned in as one of the final projects in my Front End Web Developer course @ [Udacity](www.udacity.com/). I am refactoring it to add back some functionality that I had to remove to comply with the rubric. I also have learned to keep my code a little neater :disappointed: so I wanted to make it read a little better.",
   "main": "gulpfile.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,23 +10,37 @@
     "type": "git",
     "url": "git+https://github.com/ernestdpeterson/koMaps.git"
   },
-  "keywords": [
-    "Google",
-    "Maps",
-    "API",
-    "KnockouJS",
-    "Javascript"
-  ],
   "author": "Ernest D. Peterson",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/ernestdpeterson/koMaps/issues"
   },
   "homepage": "https://github.com/ernestdpeterson/koMaps#readme",
+  "dependencies": {
+    "gulp-eslint": "^6.0.0",
+    "gulp-sass": "^4.0.2",
+    "gulp-uglifycss": "^1.1.0"
+  },
   "devDependencies": {
-    "browser-sync": "^2.24.7",
-    "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^6.0.0",
-    "gulp-uglify": "^3.0.1"
-  }
+    "@babel/core": "^7.6.2",
+    "@babel/preset-env": "^7.6.2",
+    "browser-sync": "^2.26.7",
+    "gulp": "^4.0.2",
+    "gulp-autoprefixer": "^7.0.1",
+    "gulp-babel": "^8.0.0",
+    "gulp-uglify": "^3.0.2"
+  },
+  "browserslist": [
+    "> 1%",
+    "ie >= 8",
+    "edge >= 15",
+    "ie_mob >= 10",
+    "ff >= 45",
+    "chrome >= 45",
+    "safari >= 7",
+    "opera >= 23",
+    "ios >= 7",
+    "android >= 4",
+    "bb >= 10"
+  ]
 }
