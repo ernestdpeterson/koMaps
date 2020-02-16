@@ -11,8 +11,12 @@
 </head>
 <body>
 
+    <div>
+        <button data-bind="click: $root.addEllement">someEllement</button>
+    </div>
+
 <!-- modal for the instructions button in the list -->
-<section id="modalinstructions" class="modal">
+<!-- <section id="modalinstructions" class="modal">
     <section class="modal-content">
         <section class="modal-header">
             <span id="closeinstructions" class="close" onclick=modalClose(this.id)>x</span>
@@ -22,11 +26,11 @@
             <p>Click on the Name of the item you are interested in to see Google reviews of that place.</p>
         </section>
     </section>
-</section>
+</section> -->
 
 <!-- modals -->
-<div data-bind="foreach: $root.modalArray">
-    <section data-bind="attr: {id: 'modal'+modalName}" class = "modal">
+<div id="modalMaker" data-bind="foreach: $root.modalArray">
+    <section data-bind="attr: {id: 'modal'+modalName}" class="modal">
         <section class = "modal-content">
             <section class = "modal-header">
                 <span data-bind="attr: {id: 'close'+modalName}" class = "close" onclick=modalClose(this.id)>x</span>
@@ -52,7 +56,7 @@
         <select data-bind="options: optionValues, optionsText: 'seeit', optionsValue: 'thisVal', selectedOptions: addMarkerType, click: someHelp()"></select>
     </button>
 
-    <ol id="theList" class="content" data-bind="foreach: items ">
+    <ol id="theList" class="content" data-bind="foreach: $root.koArray">
 
         <li data-bind="attr: {id: 'top'+tagId}, if: $root.addMarkerType() == 'all' || $root.addMarkerType() == placeType">
 
